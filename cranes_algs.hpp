@@ -41,6 +41,37 @@ path crane_unloading_exhaustive(const grid& setting) {
   // comment.
   path best(setting);
   for (size_t steps = 0; steps <= max_steps; steps++) {
+    for(size_t i = 0; i <= pow(2, steps) - 1; i++){
+      path candidate(setting);
+      bool valid = true;
+
+      for (size_t j = 0; j <= steps - 1; j++){
+        step_direction step_direction;
+        size_t i = (i >> j) & 1;
+        if (i == 1){
+          step_direction = STEP_DIRECTION_EAST;
+        }
+        else {
+          step_direction = STEP_DIRECTION_SOUTH;
+        }
+        if (candidate.is_step_valid(step_direction)){   //verify if direction is valid
+          candidate.add_step(step_direction);           //adds in step
+        }
+        else {
+          valid = false;
+          break;
+        }
+      }
+
+      if(valid){
+      if (candidate.total_cranes() > best.total_cranes()){
+        best = candidate;
+        }
+      }
+    }
+  }
+
+  return best;
 }
 
 // Solve the crane unloading problem for the given grid, using a dynamic
@@ -54,7 +85,7 @@ path crane_unloading_dyn_prog(const grid& setting) {
   assert(setting.rows() > 0);
   assert(setting.columns() > 0);
 
-  
+
   using cell_type = std::optional<path>;
 
   std::vector<std::vector<cell_type> > A(setting.rows(),
@@ -76,11 +107,50 @@ path crane_unloading_dyn_prog(const grid& setting) {
 
 	    // TODO: implement the dynamic programming algorithm, then delete this
   // comment.
+  if(r > 0 && A[r-1][c].has_value()){
+    from_above = A[r-1][c];
+    if(from_above->is_step_valid(STEP_DIRECTION_SOUTH)){
+      from_above->add_step(STEP_DIRECTION_SOUTH);
+    }
+  }
+
+  if(c > 0 && A[r][c-1].has_value()){
+    from_left = A[r][c-1];
+    if (from_left->is_step_valid(STEP_DIRECTION_EAST)){
+      from_left->add_step(STEP_DIRECTION_EAST);
+    }
+  }
+
+  if (from_above.has_value() && from_left.has_value()){
+    if (from_above->total_cranes() > from_left-> total_cranes()){
+      A[r][c] = from_above;
+    }
+    else {
+      A[r][c] = from_left;
+    }
+  }
+    else if (from_left.has_value()){
+      A[r][c] = from_left;
+    }
+    else if(from_above.has_value()){
+      A[r][c] = from_above;
+      }
+    }
+  }
+
+  cell_type* best = &(A[0][0]);
+  assert(best->has_value());
+  for (coordinate r=0; r < setting.rows(); ++r){
+    for (coordinate c = 0; c < setting.columns(); ++c){
+      if(A[r][c].has_value() && A[r][c]-> total_cranes() > (*best)->total_cranes()){
+        best = &(A[r][c]);
+      }
+    }
+  }
 
    assert(best->has_value());
 //  //   std::cout << "total cranes" << (**best).total_cranes() << std::endl;
 
    return **best;
 	}
-
 }
