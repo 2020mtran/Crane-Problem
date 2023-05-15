@@ -37,21 +37,19 @@ path crane_unloading_exhaustive(const grid& setting) {
   const size_t max_steps = setting.rows() + setting.columns() - 2;
   assert(max_steps < 64);
 
-  // TODO: implement the exhaustive search algorithm, then delete this
-  // comment.
-  path best(setting);
+  path best(setting); // initialize best path, currently at all 0
   for (size_t steps = 0; steps <= max_steps; steps++) {
-    for(size_t i = 0; i <= pow(2, steps) - 1; i++){
-      path candidate(setting);
-      bool valid = true;
+    for(size_t i = 0; i <= pow(2, steps) - 1; i++){ // i < (2^steps) - 1
+      path candidate(setting); // Create a new path to compare to default later
+      bool valid = true; // To later check if path is valid
 
       for (size_t j = 0; j <= steps - 1; j++){
-        step_direction step_direction;
-        size_t i = (i >> j) & 1;
-        if (i == 1){
+        step_direction step_direction; // initiating direction of step
+        size_t k = (i >> j) & 1; // make variable only 0 or 1
+        if (k == 0) {
           step_direction = STEP_DIRECTION_EAST;
         }
-        else {
+        else if (k == 1) {
           step_direction = STEP_DIRECTION_SOUTH;
         }
         if (candidate.is_step_valid(step_direction)){   //verify if direction is valid
@@ -63,14 +61,13 @@ path crane_unloading_exhaustive(const grid& setting) {
         }
       }
 
-      if(valid){
-      if (candidate.total_cranes() > best.total_cranes()){
-        best = candidate;
+      if (valid) {
+        if (candidate.total_cranes() > best.total_cranes()) {
+          best = candidate;
         }
       }
     }
   }
-
   return best;
 }
 
