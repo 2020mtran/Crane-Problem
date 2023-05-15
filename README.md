@@ -9,8 +9,8 @@ Matthew Tran (2020mtran@csu.fullerton.edu)
 
 - Note: There are two demo videos that are exactly the same (demovid1.mkv & demovid2.mp4)
 - except that they have different file types just in case you cannot view one, there is
-- another demo video in another file type that should work. 
-
+- another demo video in another file type that should work.
+- If neither work, then please use this YouTube link to the demo: https://youtu.be/4qvVvyvz2To
 
 
 
